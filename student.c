@@ -1,58 +1,79 @@
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
+#include <stdio.h>      // Standard input-output functions
+#include <string.h>     // String handling functions
+#include <ctype.h>      // Character type checking (isdigit)
 
-/* ===== COLOR MACROS ===== */
-#define RED     "\033[1;31m"
-#define GREEN   "\033[1;32m"
-#define YELLOW  "\033[1;33m"
-#define BLUE    "\033[1;34m"
-#define CYAN    "\033[1;36m"
-#define RESET   "\033[0m"
+/* =====================================================
+   COLOR MACROS FOR TERMINAL OUTPUT (ANSI ESCAPE CODES)
+   ===================================================== */
+#define RED     "\033[1;31m"   // Red color (errors)
+#define GREEN   "\033[1;32m"   // Green color (success)
+#define YELLOW  "\033[1;33m"   // Yellow color (highlight)
+#define BLUE    "\033[1;34m"   // Blue color (headings)
+#define CYAN    "\033[1;36m"   // Cyan color (menu titles)
+#define RESET   "\033[0m"      // Reset to default color
 
+/* =====================================================
+   STRUCTURE DEFINITION FOR STUDENT DATA
+   ===================================================== */
 struct student
 {
-    char name[20];
-    char add[60];
-    int id;
-    char mob[11];   // 10 digits + '\0'
+    char name[20];     // Student name
+    char add[60];      // Student address
+    int id;             // Student ID
+    char mob[11];       // Mobile number (10 digits + null)
 };
 
-/* ===== MOBILE VALIDATION FUNCTION ===== */
+/* =====================================================
+   FUNCTION: valid_mobile
+   PURPOSE : Validate mobile number
+   - Must be exactly 10 digits
+   - Must contain only digits
+   - Must be unique
+   ===================================================== */
 int valid_mobile(char mob[], struct student arr[], int size, int skipIndex)
 {
+    // Check length
     if (strlen(mob) != 10)
         return 0;
 
+    // Check each character is a digit
     for (int i = 0; i < 10; i++)
     {
         if (!isdigit(mob[i]))
             return 0;
     }
 
+    // Check for duplicate mobile number
     for (int i = 0; i < size; i++)
     {
         if (i != skipIndex && strcmp(arr[i].mob, mob) == 0)
             return 0;
     }
 
-    return 1;
+    return 1; // Mobile number is valid
 }
 
-/* ===== ADD STUDENT ===== */
+/* =====================================================
+   FUNCTION: add_student
+   PURPOSE : Add a new student record
+   ===================================================== */
 void add_student(struct student *arr, int *size)
 {
     printf(CYAN "\n--- Add Student ---\n" RESET);
 
+    // Read student name
     printf("Enter Name: ");
     scanf(" %19[^\n]", arr[*size].name);
 
+    // Read student address
     printf("Enter Address: ");
     scanf(" %59[^\n]", arr[*size].add);
 
+    // Read student ID
     printf("Enter ID: ");
     scanf("%d", &arr[*size].id);
 
+    // Read and validate mobile number
     while (1)
     {
         printf("Enter Mobile Number (10 digits): ");
@@ -64,11 +85,16 @@ void add_student(struct student *arr, int *size)
         printf(RED "Invalid or duplicate mobile number!\n" RESET);
     }
 
+    // Increase total student count
     (*size)++;
+
     printf(GREEN "✅ Student added successfully!\n" RESET);
 }
 
-/* ===== PRINT ALL ===== */
+/* =====================================================
+   FUNCTION: print_all_student
+   PURPOSE : Display all student records
+   ===================================================== */
 void print_all_student(struct student arr[], int size)
 {
     if (size == 0)
@@ -88,7 +114,10 @@ void print_all_student(struct student arr[], int size)
     }
 }
 
-/* ===== SEARCH ===== */
+/* =====================================================
+   FUNCTION: search_student
+   PURPOSE : Search student by ID or Name
+   ===================================================== */
 void search_student(struct student arr[], int size)
 {
     int opt, id, found = 0;
@@ -98,6 +127,7 @@ void search_student(struct student arr[], int size)
     printf("1. ID\n2. Name\nChoice: ");
     scanf("%d", &opt);
 
+    // Search by ID
     if (opt == 1)
     {
         printf("Enter ID: ");
@@ -115,6 +145,7 @@ void search_student(struct student arr[], int size)
             }
         }
     }
+    // Search by Name
     else if (opt == 2)
     {
         printf("Enter Name: ");
@@ -133,11 +164,15 @@ void search_student(struct student arr[], int size)
         }
     }
 
+    // If record not found
     if (!found)
         printf(RED "Student not found!\n" RESET);
 }
 
-/* ===== UPDATE ===== */
+/* =====================================================
+   FUNCTION: update_student
+   PURPOSE : Update student details
+   ===================================================== */
 void update_student(struct student arr[], int size)
 {
     int opt, id;
@@ -154,16 +189,19 @@ void update_student(struct student arr[], int size)
     {
         if (arr[i].id == id)
         {
+            // Update name
             if (opt == 1)
             {
                 printf("Enter New Name: ");
                 scanf(" %19[^\n]", arr[i].name);
             }
+            // Update address
             else if (opt == 2)
             {
                 printf("Enter New Address: ");
                 scanf(" %59[^\n]", arr[i].add);
             }
+            // Update mobile number with validation
             else if (opt == 3)
             {
                 while (1)
@@ -179,14 +217,19 @@ void update_student(struct student arr[], int size)
                     printf(RED "Invalid or duplicate mobile!\n" RESET);
                 }
             }
+
             printf(GREEN "✅ Record updated successfully!\n" RESET);
             return;
         }
     }
+
     printf(RED "Student not found!\n" RESET);
 }
 
-/* ===== DELETE ===== */
+/* =====================================================
+   FUNCTION: delete_student
+   PURPOSE : Delete a student record by ID
+   ===================================================== */
 void delete_student(struct student arr[], int *size)
 {
     int id;
@@ -198,23 +241,31 @@ void delete_student(struct student arr[], int *size)
     {
         if (arr[i].id == id)
         {
+            // Shift records left
             for (int j = i; j < *size - 1; j++)
                 arr[j] = arr[j + 1];
 
             (*size)--;
+
             printf(GREEN "✅ Student deleted successfully!\n" RESET);
             return;
         }
     }
+
     printf(RED "Student not found!\n" RESET);
 }
 
-/* ===== MAIN ===== */
+/* =====================================================
+   FUNCTION: main
+   PURPOSE : Program entry point
+   ===================================================== */
 int main()
 {
-    struct student arr[50];
-    int size = 0, opt;
+    struct student arr[50];   // Array to store students
+    int size = 0;             // Total students
+    int opt;                  // Menu choice
 
+    // Infinite loop for menu-driven program
     while (1)
     {
         printf(BLUE "\n========== STUDENT MANAGEMENT SYSTEM ==========\n" RESET);
@@ -227,6 +278,7 @@ int main()
         printf("Enter choice: ");
         scanf("%d", &opt);
 
+        // Perform operation based on user choice
         switch (opt)
         {
             case 1: add_student(arr, &size); break;
@@ -234,8 +286,11 @@ int main()
             case 3: search_student(arr, size); break;
             case 4: update_student(arr, size); break;
             case 5: delete_student(arr, &size); break;
-            case 6: printf(GREEN "Thank you!\n" RESET); return 0;
-            default: printf(RED "Invalid choice!\n" RESET);
+            case 6:
+                printf(GREEN "Thank you!\n" RESET);
+                return 0;
+            default:
+                printf(RED "Invalid choice!\n" RESET);
         }
     }
 }
